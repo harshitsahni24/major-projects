@@ -107,20 +107,26 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
 //reviews
 // post delete route
 app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
-    let listing = await Listing.findById(req.params.id);
+    let listing = await Listing.findById(req.params.id).populate("reviews");
     if (!listing) {
         req.flash("error", "Listing not found");
         return res.redirect("/listings");
     }
-    let newReview = new Review(req.body.review);
+
+    let newReview = new Review({
+        comment: req.body.review.comment,  // Ensure correct field names
+        rating: req.body.review.rating
+    });
+
     await newReview.save();
 
-    listing.reviews.push(newReview); // Ensure review is added to listing
-    await listing.save(); // Save the updated listing
-    console.log("Review Added:", newReview);  // Debugging log
+    listing.reviews.push(newReview); // Correctly associate review with listing
+    await listing.save(); // Save the listing with updated reviews
+
+    console.log("Review Added:", newReview); // Debugging log
+
     res.redirect(`/listings/${listing._id}`);
 }));
-
 // delete revieew route
 app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res) => {
     let { id, reviewId } = req.params;
@@ -130,14 +136,15 @@ app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res) => {
 }));
 
 // Populate reviews
-app.get("/listings/:id", async (req, res) => {
+app.get("/listings/:id", wrapAsync(async (req, res) => {
     let listing = await Listing.findById(req.params.id).populate("reviews");
     if (!listing) {
         req.flash("error", "Listing not found");
         return res.redirect("/listings");
     }
-    res.render("listings/show", { listing });
-});
+    console.log("Listing with reviews:", listing); // Debugging log
+    res.render("listings/show.ejs", { listing });
+}));
 
 
 // app.get("/testlisting", async (req, res) => {

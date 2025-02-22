@@ -52,13 +52,13 @@
             <hr>
             <h4>All Reviews</h4>
             <ul>
-                <% if (listing.reviews && listing.reviews.length> 0) { %> <!-- Correct condition -->
+                <% if (listing.reviews && listing.reviews.length> 0) { %>
                     <% for (let review of listing.reviews) { %>
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Jane Doe</h5>
+                                <h5 class="card-title">Anonymous</h5>
                                 <p class="card-text">
-                                    <%= review.comment %>
+                                    <%= review.comment %> <!-- Ensure using lowercase "comment" -->
                                 </p>
                                 <p class="card-text">Rating: <%= review.rating %>
                                 </p>
@@ -70,7 +70,7 @@
                         </form>
                         <% } %>
                             <% } else { %>
-                                <p>No reviews available.</p> <!-- Ensure this only shows when there are no reviews -->
+                                <p>No reviews available.</p>
                                 <% } %>
             </ul>
         </div>
