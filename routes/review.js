@@ -34,6 +34,7 @@ router.post("/", validateReview, wrapAsync(async (req, res) => {
 
     listing.reviews.push(newReview); // Correctly associate review with listing
     await listing.save(); // Save the listing with updated reviews
+    req.flash("success", "New review created!");
 
     console.log("Review Added:", newReview); // Debugging log
 
@@ -45,6 +46,7 @@ router.delete("/:reviewId", wrapAsync(async (req, res) => { // Corrected from :r
     let { id, reviewId } = req.params;
     await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
     await Review.findByIdAndDelete(reviewId);
+    req.flash("success", "review deleted!");
     res.redirect(`/listings/${id}`);
 }));
 
@@ -57,6 +59,7 @@ router.get("/listings/:id", wrapAsync(async (req, res) => {
     }
     console.log("Listing with reviews:", listing); // Debugging log
     res.render("listings/show.ejs", { listing });
+
 }));
 
 module.exports = router;
