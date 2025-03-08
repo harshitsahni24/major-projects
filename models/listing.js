@@ -1,6 +1,4 @@
-const { ref } = require("joi");
 const mongoose = require("mongoose");
-const { listingSchema } = require("../schema");
 const Schema = mongoose.Schema;
 const Review = require("./reviews");
 

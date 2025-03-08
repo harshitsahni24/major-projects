@@ -9,6 +9,11 @@ module.exports.create = async (req, res) => {
         return res.redirect("/listings");
     }
 
+    if (!req.body.review) {
+        req.flash("error", "Invalid review data");
+        return res.redirect(`/listings/${listing._id}`);
+    }
+
     let newReview = new Review({
         comment: req.body.review.comment,  // Ensure correct field names
         rating: req.body.review.rating

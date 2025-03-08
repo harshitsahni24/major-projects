@@ -6,10 +6,7 @@ const { isLoggedIn, isOwner } = require("../middleware.js");
 const listingController = require("../controllers/listings.js");
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
-const { valid } = require('joi');
 const upload = multer({ storage });
-
-
 
 router.route("/")
     .get(wrapAsync(listingController.index))
@@ -24,11 +21,10 @@ router.get("/new", isLoggedIn, listingController.newForm);
 
 router.route("/:id")
     .get(wrapAsync(listingController.show))
-    .put(isLoggedIn, isOwner, wrapAsync(listingController.update))
+    .put(isLoggedIn, isOwner, upload.single("listing[image]"), wrapAsync(listingController.update)) // Added upload.single for PUT request
     .delete(isLoggedIn, isOwner, wrapAsync(listingController.delete));
 
 // edit route
 router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(listingController.editForm));
-
 
 module.exports = router;

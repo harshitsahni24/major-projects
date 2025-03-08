@@ -28,9 +28,10 @@ module.exports.renderLogin = (req, res) => {
     res.render("users/login.ejs");
 };
 
-module.exports.login = async (req, res) => {
+module.exports.login = (req, res) => {
     req.flash("success", "Welcome back");
-    let redirectUrl = req.locals ? req.locals.redirectUrl : "/listings";
+    let redirectUrl = req.session.returnTo || "/listings"; // Fix: Use req.session.returnTo instead of req.locals
+    delete req.session.returnTo; // Clear the returnTo session variable after using it
     res.redirect(redirectUrl);
 };
 

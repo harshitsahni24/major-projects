@@ -11,7 +11,8 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'wanderlust',
-        allowed_formats: ['jpeg', 'png', 'jpg'],
+        format: async (req, file) => 'jpeg', // Fixed the issue by changing 'allowed_formats' to 'format'
+        allowed_formats: ['jpeg', 'png', 'jpg'], // This line can be removed if not needed
     },
 });
 

@@ -4,6 +4,7 @@ if (process.env.NODE_ENV !== "production") {
 console.log(process.env.SECRET);
 
 const express = require('express');
+const engine = require('ejs-locals');
 const app = express();
 const mongoose = require('mongoose');
 const Listing = require('./models/listing.js');
@@ -20,11 +21,9 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 
-
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
-
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
@@ -38,6 +37,7 @@ async function main() {
     await mongoose.connect(MONGO_URL)
 }
 
+app.engine('ejs', engine);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
@@ -49,7 +49,7 @@ const sessionOptions = {
     secret: "mysupersecret",
     resave: false,
     saveUninitialized: true,
-    Cookie: {
+    cookie: {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
@@ -91,17 +91,15 @@ app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
 
-
 app.all("*", (req, res, next) => {
     next(new ExpressError("Page Not Found", 404));
 });
 
 app.use((err, req, res, next) => {
-    let { statusCode, message } = err;
-    res.render("error.ejs", { message });
-    // res.status(statusCode).send(message);
+    const { statusCode = 500, message = "Something went wrong" } = err;
+    res.status(statusCode).render("error.ejs", { message });
 });
 
 app.listen(8080, () => {
-    console.log('Server is running');
+    console.log('Server is running on http://localhost:8080');
 });
