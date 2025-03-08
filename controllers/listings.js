@@ -1,5 +1,7 @@
 const Listing = require("../models/listing");
 
+console.log(typeof Listing); // Check if Listing is a function or object
+
 module.exports.index = async (req, res) => {
     const allListings = await Listing.find({});
     console.log(allListings);
@@ -29,11 +31,27 @@ module.exports.show = async (req, res) => {
 };
 
 module.exports.create = async (req, res, next) => {
-    const newListing = new Listing(req.body.listing);
-    newListing.owner = req.user._id;
-    await newListing.save();
-    req.flash("success", "New listing created!");
-    res.redirect("/listings");
+    try {
+        // Log req.file to check if it is defined and has the expected properties
+        console.log(req.file);
+
+        if (!req.file) {
+            req.flash("error", "No file uploaded!");
+            return res.redirect("/listings/new");
+        }
+
+        let url = req.file.path;
+        let filename = req.file.filename;
+
+        const newListing = new Listing(req.body.listing);
+        newListing.owner = req.user._id;
+        newListing.images = [{ url, filename }]; // Ensure images is an array
+        await newListing.save();
+        req.flash("success", "New listing created!");
+        res.redirect("/listings");
+    } catch (err) {
+        next(err);
+    }
 };
 
 module.exports.editForm = async (req, res) => {

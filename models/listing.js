@@ -8,9 +8,8 @@ const ListingSchema = new Schema({
     title: String,
     description: String,
     image: {
-        type: String,
-        default: "https://pixabay.com/photos/tree-sunrise-field-prairie-meadow-7186835/",
-        set: (v) => v === "" ? "https://pixabay.com/photos/tree-sunrise-field-prairie-meadow-7186835/" : v,
+        url: String,
+        filename: String,
     },
     price: Number,
     location: String,
