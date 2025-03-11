@@ -44,8 +44,6 @@ module.exports.show = async (req, res) => {
 
 module.exports.create = async (req, res, next) => {
     try {
-        console.log(req.file);
-
         if (!req.file) {
             req.flash("error", "No file uploaded!");
             return res.redirect("/listings/new");
@@ -53,10 +51,13 @@ module.exports.create = async (req, res, next) => {
 
         let url = req.file.path;
         let filename = req.file.filename;
-
+        console.log(req.file);
         const newListing = new Listing(req.body.listing);
         newListing.owner = req.user._id;
-        newListing.images = [{ url, filename }];
+
+        newListing.image = { url, filename };
+        console.log(`Image URL: ${newListing.image.url}`);
+
         await newListing.save();
         req.flash("success", "New listing created!");
         res.redirect("/listings");

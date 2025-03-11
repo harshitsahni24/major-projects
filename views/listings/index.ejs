@@ -12,7 +12,7 @@
             <% for(let listing of allListings) { %>
                 <a href="/listings/<%= listing._id %>" style="text-decoration: none; color: inherit;">
                     <div class="card" style="width: 25rem;">
-                        <img src="<%= listing.image || '/images/default-image.jpg' %>" class="card-img-top"
+                        <img src="<%= listing.image.url || '/images/default-image.jpg' %>" class="card-img-top"
                             alt="<%= listing.title || 'Default listing image' %>" style="height: 20rem;">
                         <div class="card-img-overlay"></div>
                         <div class="card-body">

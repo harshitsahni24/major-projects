@@ -13,7 +13,7 @@ router.route("/")
     .post(
         isLoggedIn,
         upload.single("listing[image]"),
-        wrapAsync(listingController.createListing)
+        wrapAsync(listingController.create),
     );
 
 // new route
@@ -21,10 +21,17 @@ router.get("/new", isLoggedIn, listingController.newForm);
 
 router.route("/:id")
     .get(wrapAsync(listingController.show))
-    .put(isLoggedIn, isOwner, upload.single("listing[image]"), wrapAsync(listingController.update)) // Added upload.single for PUT request
-    .delete(isLoggedIn, isOwner, wrapAsync(listingController.delete));
+    .put(isLoggedIn,
+        isOwner,
+        upload.single("listing[image]"),
+        wrapAsync(listingController.update)) // Added upload.single for PUT request
+    .delete(isLoggedIn,
+        isOwner,
+        wrapAsync(listingController.delete));
 
 // edit route
-router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(listingController.editForm));
+router.get("/:id/edit", isLoggedIn,
+    isOwner,
+    wrapAsync(listingController.editForm));
 
 module.exports = router;
