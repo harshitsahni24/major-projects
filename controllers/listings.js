@@ -32,11 +32,21 @@ module.exports.show = async (req, res) => {
                 },
             })
             .populate("owner");
+
         if (!listing) {
             req.flash("error", "Listing you requested for does not exist!");
             return res.redirect("/listings");
         }
-        console.log(listing);
+
+        // Provide default coordinates if missing or invalid
+        if (!listing.geometry || !Array.isArray(listing.geometry.coordinates) || listing.geometry.coordinates.length !== 2) {
+            listing.geometry = {
+                type: "Point",
+                coordinates: [77.5946, 12.9716] // Default to Bangalore, India [longitude, latitude]
+            };
+        }
+
+        console.log("Listing geometry:", listing.geometry); // Debugging
         res.render("listings/show.ejs", { listing });
     } catch (err) {
         console.error(err);
@@ -45,7 +55,7 @@ module.exports.show = async (req, res) => {
     }
 };
 
-module.exports.create = async (req, res, next) => {
+module.exports.create = async (req, res) => { // Removed 'next' parameter
     try {
         // Validate location input
         if (!req.body.listing || !req.body.listing.location) {
@@ -79,6 +89,8 @@ module.exports.create = async (req, res, next) => {
         newListing.owner = req.user._id;
         newListing.image = { url, filename };
         newListing.geometry = response.body.features[0].geometry;
+
+        console.log(newListing.geometry.coordinates); // Log the coordinates to verify
 
         // Save listing to database
         await newListing.save();
