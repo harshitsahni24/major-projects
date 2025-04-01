@@ -1,4 +1,7 @@
 const Listing = require("../models/listing");
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mapToken = process.env.MAP_TOKEN;
+const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 console.log(typeof Listing); // Check if Listing is a function or object
 
@@ -44,26 +47,47 @@ module.exports.show = async (req, res) => {
 
 module.exports.create = async (req, res, next) => {
     try {
+        // Validate location input
+        if (!req.body.listing || !req.body.listing.location) {
+            req.flash("error", "Location is required.");
+            return res.redirect("/listings/new");
+        }
+
+        // Geocode the location
+        let response = await geocodingClient
+            .forwardGeocode({
+                query: req.body.listing.location,
+                limit: 1
+            }).send();
+
+        if (!response || !response.body.features || response.body.features.length === 0) {
+            req.flash("error", "Invalid location. Please try again.");
+            return res.redirect("/listings/new");
+        }
+
+        // Validate file upload
         if (!req.file) {
             req.flash("error", "No file uploaded!");
             return res.redirect("/listings/new");
         }
 
-        let url = req.file.path;
-        let filename = req.file.filename;
-        console.log(req.file);
+        // Extract file details
+        const { path: url, filename } = req.file;
+
+        // Create new listing
         const newListing = new Listing(req.body.listing);
         newListing.owner = req.user._id;
-
         newListing.image = { url, filename };
-        console.log(`Image URL: ${newListing.image.url}`);
+        newListing.geometry = response.body.features[0].geometry;
 
+        // Save listing to database
         await newListing.save();
+
         req.flash("success", "New listing created!");
         res.redirect("/listings");
     } catch (err) {
-        console.error(err);
-        req.flash("error", "Unable to create listing.");
+        console.error("Error creating listing:", err);
+        req.flash("error", "Unable to create listing. Please try again.");
         res.redirect("/listings/new");
     }
 };
@@ -76,24 +100,37 @@ module.exports.editForm = async (req, res) => {
             req.flash("error", "Listing you requested for does not exist!");
             return res.redirect("/listings");
         }
-        res.render("listings/edit.ejs", { listing });
+
+        let originalImageUrl = listing.image.url;
+        originalImageUrl = originalImageUrl.replace("uploads", "uploads/w_300,");
+
+        res.render("listings/edit.ejs", {
+            listing, originalImageUrl
+        });
     } catch (err) {
         console.error(err);
         req.flash("error", "Unable to fetch the listing.");
-        res.redirect("/listings");
+        return res.redirect("/listings");
     }
 };
 
 module.exports.update = async (req, res) => {
     try {
         let { id } = req.params;
-        await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+        let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+
+        if (typeof req.file !== "undefined") {
+            let url = req.file.path;
+            let filename = req.file.filename;
+            listing.image = { url, filename };
+            await listing.save();
+        }
         req.flash("success", "Listing updated!");
-        res.redirect(`/listings/${id}`);
+        return res.redirect(`/listings/${id}`);
     } catch (err) {
         console.error(err);
         req.flash("error", "Unable to update listing.");
-        res.redirect(`/listings/${id}`);
+        return res.redirect(`/listings/${id}`);
     }
 };
 

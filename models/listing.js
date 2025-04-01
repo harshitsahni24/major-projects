@@ -22,11 +22,22 @@ const ListingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
+    geometry: {
+        type: {
+            type: String, // Don't do `{ location: { type: String } }`
+            enum: ['Point'], // 'location.type' must be 'Point'
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    }
 });
 
-ListingSchema.post("findOneAndDelete", async function (listing) {
-    if (listing && listing.reviews && listing.reviews.length) {
-        await Review.deleteMany({ _id: { $in: listing.reviews } });
+ListingSchema.post("findOneAndDelete", async function (doc) {
+    if (doc && doc.reviews && doc.reviews.length) {
+        await Review.deleteMany({ _id: { $in: doc.reviews } });
     }
 });
 
