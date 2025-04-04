@@ -19,5 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add a marker at the location
     new mapboxgl.Marker()
         .setLngLat(coordinates) // Ensure coordinates is valid
+        // .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML("<h4></h4>")) // Fixed method name
         .addTo(map);
 });
