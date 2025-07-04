@@ -47,7 +47,12 @@ module.exports.show = async (req, res) => {
         }
 
         console.log("Listing geometry:", listing.geometry); // Debugging
-        res.render("listings/show.ejs", { listing });
+
+        //  Pass the Mapbox token to show.ejs
+        res.render("listings/show.ejs", {
+            listing,
+            mapToken: process.env.MAP_TOKEN
+        });
     } catch (err) {
         console.error(err);
         req.flash("error", "Unable to fetch the listing.");

@@ -1,24 +1,18 @@
-// filepath: c:\Major Projects\public\js\map.js
-
 document.addEventListener("DOMContentLoaded", () => {
-    mapboxgl.accessToken = mapToken; // Use the token passed from the server
+    // Log values received from EJS
+    console.log(" mapToken from map.js:", mapToken);
+    console.log(" coordinates from map.js:", coordinates);
 
-    // Ensure coordinates is an array [lng, lat]
-    if (!Array.isArray(coordinates) || coordinates.length !== 2) {
-        console.error("Invalid coordinates:", coordinates);
-        return;
-    }
+    mapboxgl.accessToken = mapToken;
 
     const map = new mapboxgl.Map({
-        container: 'map', // Matches the id in your HTML
+        container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: coordinates, // Use the coordinates passed from the server
+        center: coordinates,
         zoom: 10
     });
 
-    // Add a marker at the location
     new mapboxgl.Marker()
-        .setLngLat(coordinates) // Ensure coordinates is valid
-        // .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML("<h4></h4>")) // Fixed method name
+        .setLngLat(coordinates)
         .addTo(map);
 });
